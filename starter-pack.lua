@@ -3,9 +3,13 @@ print("(Loaded) Starter Pack script for GrowSoft")
 
 local starterItems = {
     {itemID = 9640, itemCount = 1},
-    {itemID = 954, itemCount = 50},
+    {itemID = 20614, itemCount = 20},
     {itemID = 98, itemCount = 1},
     {itemID = 818, itemCount = 1}
+    {itemID = 20258, itemCount = 10},
+    {itemID = 20616, itemCount = 20},
+    {itemID = 12600, itemCount = 5},
+    {itemID = 25000, itemCount = 1},
 }
 
 local starterGems = 100
