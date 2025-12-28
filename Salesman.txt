@@ -1,0 +1,120 @@
+-- =====================================
+-- Locke the Salesman (Single Lua File)
+-- =====================================
+
+print("(Loaded) Locke the Salesman Shop")
+
+-- =========================
+-- EDITABLE SHOP ITEMS
+-- =========================
+local lockeShopItems = {
+    {
+        button = "buy_rayman",
+        id = 5480,
+        price = 150,
+        name = "Rayman's Fist",
+        icon = 5480
+    },
+    {
+        button = "buy_booty",
+        id = 3402,
+        price = 50,
+        name = "Golden Booty Chest",
+        icon = 3402
+    }
+    -- ADD MORE ITEMS BELOW 👇
+    -- {
+    --     button = "buy_item",
+    --     id = ITEM_ID,
+    --     price = DL_PRICE,
+    --     name = "Item Name",
+    --     icon = ICON_ID
+    -- }
+}
+
+local DL_ID = 1796 -- Diamond Lock ID
+local BGL_ID = 7188
+
+-- =========================
+-- BUILD DIALOG
+-- =========================
+local function buildLockeLayout()
+    local layout =
+        "set_default_color|`o\n" ..
+        "add_label_with_icon|big|`wLocke the Salesman|left|2398|\n" ..
+        "add_spacer|small|\n" ..
+        "add_textbox|`oGreetings, traveler. I travel through the multiverse for these treasures. Are you prepared to pay the price?|\n" ..
+        "add_spacer|small|\n"
+
+    for _, item in pairs(lockeShopItems) do
+        layout = layout ..
+            "add_button_with_icon|" .. item.button ..
+            "|`w" .. item.name .. " ``(`$" .. item.price .. " DLs``)|left|" .. item.icon .. "|\n" ..
+            "add_custom_break|\n" ..
+            "add_spacer|small|\n"
+    end
+
+    layout = layout ..
+        "add_spacer|large|\n" ..
+        "add_quick_exit|\n" ..
+        "end_dialog|locke_shop|Cancel|OK|\n"
+
+    return layout
+end
+
+-- =========================
+-- SHOW SHOP
+-- =========================
+local function onShowLocke(player)
+    player:onDialogRequest(buildLockeLayout())
+end
+
+-- =========================
+-- COMMAND HANDLER
+-- =========================
+onPlayerCommandCallback(function(world, player, fullCommand)
+    local cmd = fullCommand:match("^(%S+)")
+    if cmd and cmd:lower() == "locke" then
+        onShowLocke(player)
+        return true
+    end
+    return false
+end)
+
+-- =========================
+-- PURCHASE HANDLER
+-- =========================
+onPlayerDialogCallback(function(world, player, data)
+    if data.dialog_name ~= "locke_shop" then return false end
+
+    for _, item in pairs(lockeShopItems) do
+        if data.buttonClicked == item.button then
+            local currentDL = player:getItemAmount(DL_ID)
+
+            if currentDL >= item.price then
+                player:changeItem(DL_ID, -item.price, 0)
+                player:changeItem(item.id, 1, 0)
+
+                player:onTalkBubble(
+                    player:getNetID(),
+                    "`wLocke: `oA legendary trade! Here is your `w" .. item.name .. "`o.",
+                    0
+                )
+
+                player:onConsoleMessage(
+                    "`wLocke: `oSuccessfully purchased `w" ..
+                    item.name .. "`o for `$" .. item.price .. " DLs`o."
+                )
+            else
+                player:onTalkBubble(
+                    player:getNetID(),
+                    "`wLocke: `4You don't have enough Diamond Locks! `o(Need: " .. item.price .. ")",
+                    0
+                )
+            end
+            return true
+        end
+    end
+
+    return false
+end)
